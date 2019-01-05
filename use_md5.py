@@ -11,43 +11,41 @@
 '''
 
 # here put the import lib
-import hashlib
-# db = {
-#     'michael': 'e10adc3949ba59abbe56e057f20f883e',
-#     'bob': '878ef96e86145580c38c87f0410ad153',
-#     'alice': '99b1c2188db85afee403b1536010c2c9'
-# }
-#设置
-db = {}
-
-# def login(user, password):
-#     md5 = hashlib.md5()
-#     md5.update(password.encode('utf-8'))
-#     if db[user] == md5.hexdigest():
-#         return True
-#     return False
-
-
-
+import hashlib,hmac,random
 #md5加密
 def get_md5(s):
     return hashlib.md5(s.encode('utf-8')).hexdigest()
 
+#hmac专业加密
+def hmac_md5(key,s):
+    return hmac.new(key.encode('utf-8'),s.encode('utf-8'),'MD5').hexdigest()
+
 #定义用户类
 class User(object):
-    #所有实例共享
-    db={}
-    #注册
     def __init__(self,username, password):
-        User.db[username] = get_md5(password+'xiqukeke')
-    #登录
-    def login(self,username,password):
-        return User.db[username] == get_md5(password+'xiqukeke')
+        self.username = username
+        #随机的key值
+        self.key =''.join([chr(random.randint(48, 122)) for i in range(20)])
+        self.password =hmac_md5(self.key,password)
+#储存用户数据
+db = {}
+#注册
+def register(username,password):
+    if username in db:
+        print('该用户已注册')
+    else:
+        db[username] = User(username,password)
+        print('注册成功')
 
-alice =User('alice','123456')
-bob =User('bob','123456')
-print(alice.login('bob','123456'))
-# print(User.db)
+#登录
+def login(username,password):
+    user = db[username]
+    return user.password == hmac_md5(user.key,password)    
+register('bob','12345')
+register('bob','12345')
+register('alice','12345')
+assert login('alice', '12345')
+# print(db)
 
 
 
