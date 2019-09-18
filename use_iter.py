@@ -29,3 +29,4 @@ class test:
 if __name__ == '__main__':
     for item in test(3):
         print(item)
+        
